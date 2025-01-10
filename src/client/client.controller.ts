@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { Client } from './client.schema';
 import { CreateClientDto } from './dto/create-client.dto';
+import { console } from 'inspector';
 
 @Controller('client')
 export class ClientController {
@@ -29,8 +30,9 @@ export class ClientController {
       creds.password
     );
     // Generate JWT
+    console.log(user);
     const token = await this.clientService.generateToken(user);
-    return { accessToken: token };
+    return { accessToken: token, user };
   }
 
   @Get('find-by-api-key/:apiKey')
