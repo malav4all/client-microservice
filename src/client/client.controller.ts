@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { Client } from './client.schema';
 import { CreateClientDto } from './dto/create-client.dto';
@@ -51,5 +51,21 @@ export class ClientController {
     }
   ) {
     return this.clientService.updateUserUsage(id, data);
+  }
+
+  @Patch('change-password/:id')
+  async changePassword(
+    @Param('id') id: string,
+    @Body() creds: { oldPassword: string; newPassword: string }
+  ) {
+    try {
+      const { oldPassword, newPassword } = creds;
+      await this.clientService.changePassword(id, oldPassword, newPassword);
+      return {
+        message: 'Password changed successfully',
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }
