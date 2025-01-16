@@ -67,12 +67,19 @@ export class ClientService {
     return `${rand}`;
   }
 
-  /**
-   * Return all users (demo).
-   * In production, you might want to remove passwords or filter data.
-   */
-  async findAll(): Promise<Client[]> {
-    return this.clientModel.find().exec();
+  async findAll(
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: any; total: number; page: number; limit: number }> {
+    try {
+      const skip = (page - 1) * limit; // Calculate documents to skip
+      const total = await this.clientModel.countDocuments().exec(); // Get total number of documents
+      const data = await this.clientModel.find().skip(skip).limit(limit).exec(); // Fetch paginated data
+
+      return { data, total, page, limit };
+    } catch (error) {
+      throw new Error('Database query failed');
+    }
   }
 
   async findById(id: string) {
@@ -83,10 +90,7 @@ export class ClientService {
     return user;
   }
 
-  async updateUser(
-    id: string,
-    updateDto: { name?: string; email?: string; age?: number }
-  ) {
+  async updateUser(id: string, updateDto: Partial<Client>) {
     const user = await this.clientModel
       .findByIdAndUpdate(id, updateDto, { new: true })
       .exec();
